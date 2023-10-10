@@ -1,0 +1,168 @@
+@font-face {
+    font-family: 'Indivisible';
+    src: url('Indivisible-ThinItalic.eot');
+    src: local('Indivisible Thin Italic'), local('Indivisible-ThinItalic'),
+        url('Indivisible-ThinItalic.eot?#iefix') format('embedded-opentype'),
+        url('Indivisible-ThinItalic.woff2') format('woff2'),
+        url('Indivisible-ThinItalic.woff') format('woff'),
+        url('Indivisible-ThinItalic.ttf') format('truetype');
+    font-weight: 100;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Indivisible';
+    src: url('Indivisible-MediumItalic.eot');
+    src: local('Indivisible Medium Italic'), local('Indivisible-MediumItalic'),
+        url('Indivisible-MediumItalic.eot?#iefix') format('embedded-opentype'),
+        url('Indivisible-MediumItalic.woff2') format('woff2'),
+        url('Indivisible-MediumItalic.woff') format('woff'),
+        url('Indivisible-MediumItalic.ttf') format('truetype');
+    font-weight: 500;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Indivisible';
+    src: url('Indivisible-Black.eot');
+    src: local('Indivisible Black'), local('Indivisible-Black'),
+        url('Indivisible-Black.eot?#iefix') format('embedded-opentype'),
+        url('Indivisible-Black.woff2') format('woff2'),
+        url('Indivisible-Black.woff') format('woff'),
+        url('Indivisible-Black.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Indivisible';
+    src: url('Indivisible-RegularItalic.eot');
+    src: local('Indivisible Regular Italic'), local('Indivisible-RegularItalic'),
+        url('Indivisible-RegularItalic.eot?#iefix') format('embedded-opentype'),
+        url('Indivisible-RegularItalic.woff2') format('woff2'),
+        url('Indivisible-RegularItalic.woff') format('woff'),
+        url('Indivisible-RegularItalic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Indivisible';
+    src: url('Indivisible-Bold.eot');
+    src: local('Indivisible Bold'), local('Indivisible-Bold'),
+        url('Indivisible-Bold.eot?#iefix') format('embedded-opentype'),
+        url('Indivisible-Bold.woff2') format('woff2'),
+        url('Indivisible-Bold.woff') format('woff'),
+        url('Indivisible-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Indivisible';
+    src: url('Indivisible-BoldItalic.eot');
+    src: local('Indivisible Bold Italic'), local('Indivisible-BoldItalic'),
+        url('Indivisible-BoldItalic.eot?#iefix') format('embedded-opentype'),
+        url('Indivisible-BoldItalic.woff2') format('woff2'),
+        url('Indivisible-BoldItalic.woff') format('woff'),
+        url('Indivisible-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Indivisible';
+    src: url('Indivisible-BlackItalic.eot');
+    src: local('Indivisible Black Italic'), local('Indivisible-BlackItalic'),
+        url('Indivisible-BlackItalic.eot?#iefix') format('embedded-opentype'),
+        url('Indivisible-BlackItalic.woff2') format('woff2'),
+        url('Indivisible-BlackItalic.woff') format('woff'),
+        url('Indivisible-BlackItalic.ttf') format('truetype');
+    font-weight: 900;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Indivisible';
+    src: url('Indivisible-Light.eot');
+    src: local('Indivisible Light'), local('Indivisible-Light'),
+        url('Indivisible-Light.eot?#iefix') format('embedded-opentype'),
+        url('Indivisible-Light.woff2') format('woff2'),
+        url('Indivisible-Light.woff') format('woff'),
+        url('Indivisible-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Indivisible';
+    src: url('Indivisible-SemiBoldItalic.eot');
+    src: local('Indivisible SemiBold Italic'), local('Indivisible-SemiBoldItalic'),
+        url('Indivisible-SemiBoldItalic.eot?#iefix') format('embedded-opentype'),
+        url('Indivisible-SemiBoldItalic.woff2') format('woff2'),
+        url('Indivisible-SemiBoldItalic.woff') format('woff'),
+        url('Indivisible-SemiBoldItalic.ttf') format('truetype');
+    font-weight: 600;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Indivisible';
+    src: url('Indivisible-LightItalic.eot');
+    src: local('Indivisible Light Italic'), local('Indivisible-LightItalic'),
+        url('Indivisible-LightItalic.eot?#iefix') format('embedded-opentype'),
+        url('Indivisible-LightItalic.woff2') format('woff2'),
+        url('Indivisible-LightItalic.woff') format('woff'),
+        url('Indivisible-LightItalic.ttf') format('truetype');
+    font-weight: 300;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Indivisible';
+    src: url('Indivisible-Medium.eot');
+    src: local('Indivisible Medium'), local('Indivisible-Medium'),
+        url('Indivisible-Medium.eot?#iefix') format('embedded-opentype'),
+        url('Indivisible-Medium.woff2') format('woff2'),
+        url('Indivisible-Medium.woff') format('woff'),
+        url('Indivisible-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Indivisible';
+    src: url('Indivisible-SemiBold.eot');
+    src: local('Indivisible SemiBold'), local('Indivisible-SemiBold'),
+        url('Indivisible-SemiBold.eot?#iefix') format('embedded-opentype'),
+        url('Indivisible-SemiBold.woff2') format('woff2'),
+        url('Indivisible-SemiBold.woff') format('woff'),
+        url('Indivisible-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Indivisible';
+    src: url('Indivisible-Thin.eot');
+    src: local('Indivisible Thin'), local('Indivisible-Thin'),
+        url('Indivisible-Thin.eot?#iefix') format('embedded-opentype'),
+        url('Indivisible-Thin.woff2') format('woff2'),
+        url('Indivisible-Thin.woff') format('woff'),
+        url('Indivisible-Thin.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Indivisible';
+    src: url('Indivisible-Regular.eot');
+    src: local('Indivisible Regular'), local('Indivisible-Regular'),
+        url('Indivisible-Regular.eot?#iefix') format('embedded-opentype'),
+        url('Indivisible-Regular.woff2') format('woff2'),
+        url('Indivisible-Regular.woff') format('woff'),
+        url('Indivisible-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
