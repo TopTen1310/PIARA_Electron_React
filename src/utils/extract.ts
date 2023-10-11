@@ -18,6 +18,14 @@ function replaceWithHash(
   return prefix + hashString + suffix;
 }
 
+const escapeRegex = (string: string) => {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+const isEnglishCharacter = (char: string) => {
+  return /^[a-zA-Z]$/.test(char);
+};
+
 function extractTextWithSupHandling(node: HTMLElement): string {
   let resultText = '';
 
@@ -261,11 +269,19 @@ export function checkTermExist(parentClass: string, term: string) {
     const text = extractTextWithSupHandling(paragraphNodes[i]);
 
     if (text) {
-      const matches = [
-        ...text.matchAll(
-          new RegExp(`\\b${term}${term.endsWith('.') ? '' : '\\b'}`, 'g'),
-        ),
-      ];
+      let pattern;
+
+      // Check if the start and end characters of item.term are English characters
+      if (
+        isEnglishCharacter(term.charAt(0)) &&
+        isEnglishCharacter(term.charAt(term.length - 1))
+      ) {
+        pattern = new RegExp(`\\b${escapeRegex(term)}\\b`, 'g');
+      } else {
+        pattern = new RegExp(escapeRegex(term), 'g');
+      }
+
+      const matches = [...text.matchAll(pattern)];
       count += matches.length;
     }
   }
@@ -410,14 +426,20 @@ export function highlightTerms(
 
         for (let i = 0; i < flatTerms.length; i++) {
           const item = flatTerms[i];
-          const matches = [
-            ...textWithTicks.matchAll(
-              new RegExp(
-                `\\b${item.term}${item.term.endsWith('.') ? '' : '\\b'}`,
-                'g',
-              ),
-            ),
-          ];
+
+          let pattern;
+
+          // Check if the start and end characters of item.term are English characters
+          if (
+            isEnglishCharacter(item.term.charAt(0)) &&
+            isEnglishCharacter(item.term.charAt(item.term.length - 1))
+          ) {
+            pattern = new RegExp(`\\b${escapeRegex(item.term)}\\b`, 'g');
+          } else {
+            pattern = new RegExp(escapeRegex(item.term), 'g');
+          }
+
+          const matches = [...textWithTicks.matchAll(pattern)];
 
           for (const match of matches) {
             const backtickCountUpToMatch = (

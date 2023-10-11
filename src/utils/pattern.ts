@@ -12,8 +12,9 @@ export const patterns: Record<string, RegExp[]> = {
     /\d{1,2}\s?noon/g,
     /\d{1,2}(?:[:]\d{2})/g,
   ],
+  email: [/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g],
   domain: [
     /\b(?:https?:\/\/)?(?:[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?\.)+[a-z]{2,}/g,
   ],
-  email: [/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g],
+  phone: [/^\+\s*(\d+)\s*(?:\()?(\d{1,3})(?:\))?\s*((\d[\s\-]?){6,12}\d)$/g],
 };

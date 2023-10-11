@@ -34,6 +34,7 @@ module.exports = {
           org: '#2196F3', // Blue
           loc: '#FF5722', // Deep Orange
           email: '#00BCD4', // Cyan
+          phone: '#607d8b', // Blue Grey
           custom0: '#795548', // Brown
           custom1: '#009688', // Teal
           custom2: '#4CAF50', // Green

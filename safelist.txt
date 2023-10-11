@@ -253,6 +253,7 @@ text-highlight-misc
 text-highlight-org
 text-highlight-loc
 text-highlight-email
+text-highlight-phone
 text-highlight-custom0
 text-highlight-custom1
 text-highlight-custom2
@@ -516,6 +517,7 @@ bg-highlight-misc
 bg-highlight-org
 bg-highlight-loc
 bg-highlight-email
+bg-highlight-phone
 bg-highlight-custom0
 bg-highlight-custom1
 bg-highlight-custom2
@@ -779,6 +781,7 @@ dark:bg-highlight-misc
 dark:bg-highlight-org
 dark:bg-highlight-loc
 dark:bg-highlight-email
+dark:bg-highlight-phone
 dark:bg-highlight-custom0
 dark:bg-highlight-custom1
 dark:bg-highlight-custom2
@@ -1042,6 +1045,7 @@ dark:hover:bg-highlight-misc
 dark:hover:bg-highlight-org
 dark:hover:bg-highlight-loc
 dark:hover:bg-highlight-email
+dark:hover:bg-highlight-phone
 dark:hover:bg-highlight-custom0
 dark:hover:bg-highlight-custom1
 dark:hover:bg-highlight-custom2
@@ -1305,6 +1309,7 @@ dark:active:bg-highlight-misc
 dark:active:bg-highlight-org
 dark:active:bg-highlight-loc
 dark:active:bg-highlight-email
+dark:active:bg-highlight-phone
 dark:active:bg-highlight-custom0
 dark:active:bg-highlight-custom1
 dark:active:bg-highlight-custom2
@@ -1568,6 +1573,7 @@ hover:text-highlight-misc
 hover:text-highlight-org
 hover:text-highlight-loc
 hover:text-highlight-email
+hover:text-highlight-phone
 hover:text-highlight-custom0
 hover:text-highlight-custom1
 hover:text-highlight-custom2
@@ -1831,6 +1837,7 @@ hover:bg-highlight-misc
 hover:bg-highlight-org
 hover:bg-highlight-loc
 hover:bg-highlight-email
+hover:bg-highlight-phone
 hover:bg-highlight-custom0
 hover:bg-highlight-custom1
 hover:bg-highlight-custom2
@@ -2094,6 +2101,7 @@ active:bg-highlight-misc
 active:bg-highlight-org
 active:bg-highlight-loc
 active:bg-highlight-email
+active:bg-highlight-phone
 active:bg-highlight-custom0
 active:bg-highlight-custom1
 active:bg-highlight-custom2
@@ -2357,6 +2365,7 @@ ring-highlight-misc
 ring-highlight-org
 ring-highlight-loc
 ring-highlight-email
+ring-highlight-phone
 ring-highlight-custom0
 ring-highlight-custom1
 ring-highlight-custom2
@@ -2620,6 +2629,7 @@ hover:ring-highlight-misc
 hover:ring-highlight-org
 hover:ring-highlight-loc
 hover:ring-highlight-email
+hover:ring-highlight-phone
 hover:ring-highlight-custom0
 hover:ring-highlight-custom1
 hover:ring-highlight-custom2
@@ -2883,6 +2893,7 @@ focus:ring-highlight-misc
 focus:ring-highlight-org
 focus:ring-highlight-loc
 focus:ring-highlight-email
+focus:ring-highlight-phone
 focus:ring-highlight-custom0
 focus:ring-highlight-custom1
 focus:ring-highlight-custom2
@@ -3146,6 +3157,7 @@ focus-within:ring-highlight-misc
 focus-within:ring-highlight-org
 focus-within:ring-highlight-loc
 focus-within:ring-highlight-email
+focus-within:ring-highlight-phone
 focus-within:ring-highlight-custom0
 focus-within:ring-highlight-custom1
 focus-within:ring-highlight-custom2
@@ -3409,6 +3421,7 @@ border-highlight-misc
 border-highlight-org
 border-highlight-loc
 border-highlight-email
+border-highlight-phone
 border-highlight-custom0
 border-highlight-custom1
 border-highlight-custom2
@@ -3672,6 +3685,7 @@ focus:border-highlight-misc
 focus:border-highlight-org
 focus:border-highlight-loc
 focus:border-highlight-email
+focus:border-highlight-phone
 focus:border-highlight-custom0
 focus:border-highlight-custom1
 focus:border-highlight-custom2
@@ -3935,6 +3949,7 @@ focus-within:border-highlight-misc
 focus-within:border-highlight-org
 focus-within:border-highlight-loc
 focus-within:border-highlight-email
+focus-within:border-highlight-phone
 focus-within:border-highlight-custom0
 focus-within:border-highlight-custom1
 focus-within:border-highlight-custom2
@@ -4198,6 +4213,7 @@ dark:text-highlight-misc
 dark:text-highlight-org
 dark:text-highlight-loc
 dark:text-highlight-email
+dark:text-highlight-phone
 dark:text-highlight-custom0
 dark:text-highlight-custom1
 dark:text-highlight-custom2
@@ -4461,6 +4477,7 @@ dark:hover:text-highlight-misc
 dark:hover:text-highlight-org
 dark:hover:text-highlight-loc
 dark:hover:text-highlight-email
+dark:hover:text-highlight-phone
 dark:hover:text-highlight-custom0
 dark:hover:text-highlight-custom1
 dark:hover:text-highlight-custom2

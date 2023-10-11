@@ -21,6 +21,11 @@ import { MdOutlineAdd, MdOutlineRemove } from 'react-icons/md';
 import { ResultEntity } from '../main/ner';
 import { FaAngleRight } from 'react-icons/fa';
 import NewCategory from '../components/NewCategory';
+import {
+  TransformWrapper,
+  TransformComponent,
+  ReactZoomPanPinchRef,
+} from 'react-zoom-pan-pinch';
 
 type ACTION_TYPE = 'delete' | 'add' | 'apply' | 'unapply';
 
@@ -41,6 +46,7 @@ let keyMap: Record<string, string> = {
   time: 'Time',
   domain: 'Domain',
   email: 'Email',
+  phone: 'Phone Number',
 };
 
 interface EntityItemProps {
@@ -112,6 +118,7 @@ const DocumentAnalysis = () => {
   const navigate = useNavigate();
   const documentContext = useContext(DocumentContext);
   const containerRef = useRef<HTMLDivElement>(null);
+  const innerContainerRef = useRef<HTMLDivElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startY, setStartY] = useState(0);
   const [startScrollTop, setStartScrollTop] = useState(0);
@@ -119,10 +126,7 @@ const DocumentAnalysis = () => {
   const [startScrollLeft, setStartScrollLeft] = useState(0);
   const [loading, setLoading] = useState(false);
   const [scale, setScale] = useState<number>(1);
-  const contentRef = useRef<HTMLDivElement | null>(null);
-
   const [historyQueue, setHistoryQueue] = useState<History[]>([]);
-
   const [redoHistoryQueue, setRedoHistoryQueue] = useState<History[]>([]);
   const [terms, setTerms] = useState<
     Record<string, { term: string; count: number; active: boolean }[]>
@@ -132,6 +136,7 @@ const DocumentAnalysis = () => {
   const [selectedTerm, setSelectedTerm] = useState<string | undefined>();
   const [playAnimation, setPlayAnimation] = useState(false);
   const [customCategoryCount, setCustomCategoryCount] = useState(0);
+  const transformComponentRef = useRef<ReactZoomPanPinchRef | null>(null);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     setIsDragging(true);
@@ -332,28 +337,18 @@ const DocumentAnalysis = () => {
     }));
   };
 
-  const handleWheel = (e: WheelEvent<HTMLDivElement>) => {
-    if (e.ctrlKey) {
-      // e.preventDefault();
-
-      // Determine the new scale based on the wheel event
-      let newScale: number;
-      if (e.deltaY < 0) {
-        newScale = Math.min(scale + 0.1, 2);
-      } else {
-        newScale = Math.max(scale - 0.1, 0.5);
-      }
-
-      setScale(newScale);
+  const handleZoomIn = () => {
+    if (transformComponentRef.current) {
+      const { zoomIn } = transformComponentRef.current!;
+      zoomIn();
     }
   };
 
-  const handleZoomIn = () => {
-    setScale((prevScale) => Math.min(prevScale + 0.1, 2));
-  };
-
   const handleZoomOut = () => {
-    setScale((prevScale) => Math.max(prevScale - 0.1, 0.5));
+    if (transformComponentRef.current) {
+      const { zoomOut } = transformComponentRef.current!;
+      zoomOut();
+    }
   };
 
   const addNewHistory = (history: History, resetRedo?: boolean) => {
@@ -620,17 +615,12 @@ const DocumentAnalysis = () => {
 
       if (selectedTerm && playAnimation) {
         setPlayAnimation(false);
-        const element = document.querySelector(`[data-tag="${selectedTerm}"]`)
-          ?.parentElement;
-        const container = document.getElementById('container');
-        const scrollView = container?.parentElement;
 
-        if (element && scrollView) {
-          let topPosition = getAbsoluteTopPosition(element, scrollView);
-          scrollView.scrollTo({
-            top: topPosition,
-            behavior: 'smooth',
-          });
+        if (transformComponentRef.current) {
+          const { zoomToElement } = transformComponentRef.current!;
+          const element = document.querySelector(`[data-tag="${selectedTerm}"]`)
+            ?.parentElement;
+          if (element) zoomToElement(element, 1);
         }
       }
     });
@@ -645,12 +635,12 @@ const DocumentAnalysis = () => {
       <div className="relative max-w-[calc(100%_-_300px)] h-full pt-[50px]">
         <div className="w-full h-[50px] bg-[#ffffff] absolute top-0 left-0 z-[9] drop-shadow-lg app-region flex justify-between items-center border-b-[1px] border-[#9b9b9b]">
           <div className="flex h-full p-1 gap-1">
-            {/* <ToolButton title="Zoom In" onClick={handleZoomIn}>
+            <ToolButton title="Zoom In" onClick={handleZoomIn}>
               <BsZoomIn />
             </ToolButton>
             <ToolButton title="Zoom Out" onClick={handleZoomOut}>
               <BsZoomOut />
-            </ToolButton> */}
+            </ToolButton>
           </div>
           <h4 className="font-bold">
             {documentContext.document.filename ?? 'Unknown.docx'}
@@ -674,20 +664,24 @@ const DocumentAnalysis = () => {
         </div>
         <div
           ref={containerRef}
-          className="relative w-full h-full overflow-auto rounded-bl-lg bg-[#cecece]"
+          className="relative w-full h-full rounded-bl-lg bg-[#cecece]"
         >
-          <div
-            id="container"
-            className="w-full cursor-grab select-none transition-all duration-300 origin-[top left] overflow-auto"
-            ref={contentRef}
-            onMouseDown={handleMouseDown}
-            // onWheel={handleWheel}
-            style={{
-              transform: `scale(${scale})`,
-              willChange: 'transform',
-              overflow: 'visible',
-            }}
-          />
+          <TransformWrapper ref={transformComponentRef}>
+            <TransformComponent
+              wrapperStyle={{
+                width: '100%',
+                height: '100%',
+                borderBottomLeftRadius: '0.5rem',
+              }}
+            >
+              <div
+                id="container"
+                ref={innerContainerRef}
+                className="w-full cursor-grab select-none transition-all duration-300 h-[fit-content] origin-[center_top]"
+              />
+            </TransformComponent>
+          </TransformWrapper>
+
           {loading && (
             <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center backdrop-blur-sm">
               <BarLoader color="#4537de" />

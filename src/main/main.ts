@@ -165,6 +165,21 @@ const createWindow = async () => {
     }
   });
 
+  mainWindow.on('focus', () => {
+    globalShortcut.register('CmdOrCtrl+Z', () => {
+      mainWindow!.webContents.send('undo-command');
+    });
+
+    globalShortcut.register('CmdOrCtrl+Shift+Z', () => {
+      mainWindow!.webContents.send('redo-command');
+    });
+  });
+
+  mainWindow.on('blur', () => {
+    globalShortcut.unregister('CmdOrCtrl+Z');
+    globalShortcut.unregister('CmdOrCtrl+Shift+Z');
+  });
+
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
@@ -208,14 +223,6 @@ app
   .then(async () => {
     createWindow();
 
-    globalShortcut.register('CmdOrCtrl+Z', () => {
-      mainWindow?.webContents.send('undo-command');
-    });
-
-    globalShortcut.register('CmdOrCtrl+Shift+Z', () => {
-      mainWindow?.webContents.send('redo-command');
-    });
-
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
@@ -223,6 +230,11 @@ app
     });
   })
   .catch(console.log);
+
+app.on('will-quit', () => {
+  // Unregister all shortcuts to avoid any potential issues.
+  globalShortcut.unregisterAll();
+});
 
 ipcMain.on('minimize-to-taskbar', () => {
   if (mainWindow) mainWindow.minimize();
