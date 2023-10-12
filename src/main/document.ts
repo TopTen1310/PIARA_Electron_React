@@ -92,7 +92,8 @@ export function manipulateXml(
       clonedRunNode.removeChild(oldTextNodes[0]);
     }
     let newTextElement = stTextNode!.cloneNode(true) as Element;
-    newTextElement.textContent = `${info.newText}`;
+    newTextElement.setAttribute('xml:space', 'preserve');
+    newTextElement.textContent = ` ${info.newText} `;
     clonedRunNode.appendChild(newTextElement);
 
     let runPropertiesList = clonedRunNode.getElementsByTagName('w:rPr');
