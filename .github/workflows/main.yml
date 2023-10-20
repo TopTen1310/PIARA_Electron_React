@@ -7,7 +7,10 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
 
     steps:
       - name: Checkout Code
@@ -27,5 +30,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: macos-app
-          path: release/build/*.dmg
+          name: ${{ matrix.os }}-app
+          path: release/build/*
