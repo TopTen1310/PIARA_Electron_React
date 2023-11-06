@@ -70,6 +70,8 @@ button {
 .docx-wrapper {
   background-color: #cecece !important;
   border-bottom-left-radius: 0.5rem;
+  width: fit-content;
+  margin: auto;
 }
 
 .hidden {
@@ -90,4 +92,15 @@ section {
   height: calc(100% - 4px);
   background: #0077ff;
   box-sizing: border-box;
+}
+
+a {
+  pointer-events: none;
+  cursor: text;
+  text-decoration: none;
+  color: inherit;
+}
+
+.docx-wrapper > section > article > p {
+  cursor: text;
 }

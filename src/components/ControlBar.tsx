@@ -1,12 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { RxCross1 } from 'react-icons/rx';
 import { FiMinimize } from 'react-icons/fi';
-import {
-  MdMinimize,
-  MdDocumentScanner,
-  MdArrowBackIosNew,
-} from 'react-icons/md';
-import ToolButton from '../common/ToolButton';
+import { MdMinimize } from 'react-icons/md';
 import { useAlert } from '../layout/MainLayout';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -14,7 +9,6 @@ const ControlBar = () => {
   const { alert } = useAlert();
   const navigate = useNavigate();
   const location = useLocation();
-  const [showBack, setShowBack] = useState(false);
 
   const handleMinimizeToTaskbar = () => {
     window.electron.ipcRenderer.sendMessage('minimize-to-taskbar');
@@ -27,22 +21,6 @@ const ControlBar = () => {
   const handleCloseWindow = () => {
     window.electron.ipcRenderer.sendMessage('close-window');
   };
-
-  const handleBackClick = () => {
-    alert('This document will be discarded.', 'info').then((res) => {
-      if (res) {
-        navigate('/');
-      }
-    });
-  };
-
-  useEffect(() => {
-    if (location.pathname !== '/') {
-      setShowBack(true);
-    } else {
-      setShowBack(false);
-    }
-  }, [location.pathname]);
 
   useEffect(() => {
     const closeHandler = () => {
@@ -70,16 +48,7 @@ const ControlBar = () => {
       className="flex justify-between items-center bg-[#f3f3f3] app-region h-[45px] rounded-tl-lg rounded-tr-lg"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="flex items-center h-full">
-        {showBack ? (
-          <ToolButton
-            className="h-full rounded-none rounded-tl-lg"
-            onClick={handleBackClick}
-          >
-            <MdArrowBackIosNew />
-          </ToolButton>
-        ) : null}
-      </div>
+      <div className="flex items-center h-full"></div>
       <h3 className="ml-4 flex gap-2 items-center text-gray-800 text-[0.85rem]">
         PIARA - Keep your data secure
       </h3>

@@ -8,18 +8,22 @@ import React, {
 } from 'react';
 import { FaAngleDown } from 'react-icons/fa';
 import Checkbox, { CheckboxState } from './Checkbox';
+import { DocumentContext } from '../layout/MainLayout';
 
 interface DropdownItemProps {
+  className?: string;
   children: ReactNode;
 }
 
 interface DropdownProps {
+  className?: string;
   termKey?: string;
   title: string;
   children?: ReactNode;
   showCount?: boolean;
   handleSelectAll?: () => void;
   checkboxState?: CheckboxState;
+  showColor?: boolean;
 }
 
 interface ContextProps {
@@ -31,22 +35,30 @@ interface DropdownGroupProps {
   children: ReactNode;
 }
 
-export const DropdownItem: React.FC<DropdownItemProps> = ({ children }) => {
+export const DropdownItem: React.FC<DropdownItemProps> = ({
+  className = '',
+  children,
+}) => {
   return (
-    <div className="border-b-[1px] border-[#b8b8b8] flex justify-between items-center transform transition-transform duration-300 bg-[#ebebeb]">
+    <div
+      className={`border-b-[1px] border-[#b8b8b8] flex justify-between items-center transform transition-transform duration-300 bg-[#ebebeb] ${className}`}
+    >
       {children}
     </div>
   );
 };
 
 export const Dropdown: React.FC<DropdownProps> = ({
+  className = '',
   termKey,
   title,
   children,
   showCount = true,
   handleSelectAll,
   checkboxState,
+  showColor = true,
 }) => {
+  const documentContext = useContext(DocumentContext);
   const context = useContext(DropdownContext);
   const childCount = React.Children.count(children);
   const [isOpen, setIsOpen] = useState(false);
@@ -89,26 +101,27 @@ export const Dropdown: React.FC<DropdownProps> = ({
     }
   }, []);
 
-  const meaningColor = termKey
-    ? `bg-highlight-${termKey.toLowerCase()}`
-    : 'transparent';
+  const { categories } = documentContext!;
+  const meaningColor = categories[termKey!]?.color;
 
   return (
     <div className="no-app-region">
       <div
-        className="p-3 border-b-[1px] border-[#b8b8b8] flex justify-between items-center cursor-pointer transform transition-all duration-300 hover:bg-[#ebebeb]"
+        className={`p-3 border-b-[1px] border-[#b8b8b8] flex justify-between items-center cursor-pointer transform transition-all duration-300 hover:bg-[#ebebeb] ${className}`}
         onClick={toggleDropdown}
       >
         <div className="flex items-center gap-3">
-          <Checkbox
-            checkboxState={checkboxState}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (handleSelectAll) {
-                handleSelectAll();
-              }
-            }}
-          />
+          {handleSelectAll && (
+            <Checkbox
+              checkboxState={checkboxState}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (handleSelectAll) {
+                  handleSelectAll();
+                }
+              }}
+            />
+          )}
           <h4
             className="font-bold truncate w-[150px]"
             title={`${title} (${showCount ? childCount - 1 : ''})`}
@@ -117,7 +130,14 @@ export const Dropdown: React.FC<DropdownProps> = ({
           </h4>
         </div>
         <div className="flex items-center gap-5">
-          <div className={`w-[20px] h-[20px] rounded ${meaningColor}`}></div>
+          {showColor && (
+            <div
+              className={`w-[20px] h-[20px] rounded`}
+              style={{
+                backgroundColor: meaningColor,
+              }}
+            ></div>
+          )}
           <FaAngleDown
             className={`transform transition-transform duration-300 ${
               isOpen ? 'rotate-180' : ''

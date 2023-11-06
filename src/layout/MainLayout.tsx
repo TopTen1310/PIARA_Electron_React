@@ -9,6 +9,7 @@ import ControlBar from '../components/ControlBar';
 import StatusBar from '../components/StatusBar';
 import Button from '../common/Button';
 import { useFetcher } from 'react-router-dom';
+import Setting from '../components/Setting';
 
 type Document = {
   filepath?: string;
@@ -44,12 +45,25 @@ interface AlertProps extends React.DOMAttributes<HTMLDivElement> {
   onResolve?: (value: boolean | PromiseLike<boolean>) => void;
 }
 
-export const DocumentContext = createContext(
-  {} as {
-    document: Document;
-    setDocument: React.Dispatch<React.SetStateAction<Document>>;
-  },
-);
+export type CategoryData = {
+  title: string;
+  defined: string[];
+  color: string;
+  default?: boolean;
+};
+
+export type Category = Record<string, CategoryData>;
+
+interface DocumentContextProps {
+  document: Document;
+  setDocument: React.Dispatch<React.SetStateAction<Document>>;
+  categories: Category;
+  addCategory: (key: string, data: CategoryData) => void;
+  removeCategory: (key: string) => void;
+  updateCategory: (key: string, newData: CategoryData) => void;
+}
+
+export const DocumentContext = createContext<DocumentContextProps | null>(null);
 
 const AlertContext = createContext<AlertContextType | undefined>(undefined);
 
@@ -168,6 +182,38 @@ const Alert: React.FC<AlertProps> = ({
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [myDocument, setMyDocument] = useState<Document>({});
   const [maximized, setMaximized] = useState(false);
+  const [categories, setCategories] = useState<Category>({});
+
+  const addCategory = (key: string, data: CategoryData) => {
+    setCategories((prv) => {
+      const newCategories = {
+        ...prv,
+        [key]: data,
+      };
+      window.electron.ipcRenderer.sendMessage('save-category', newCategories);
+      return newCategories;
+    });
+  };
+
+  const removeCategory = (key: string) => {
+    setCategories((prv) => {
+      delete prv[key];
+      const newCategories = prv;
+      window.electron.ipcRenderer.sendMessage('save-category', newCategories);
+      return newCategories;
+    });
+  };
+
+  const updateCategory = (key: string, newData: CategoryData) => {
+    setCategories((prv) => {
+      const newCategories = {
+        ...prv,
+        [key]: newData,
+      };
+      window.electron.ipcRenderer.sendMessage('save-category', newCategories);
+      return newCategories;
+    });
+  };
 
   useEffect(() => {
     window.electron.ipcRenderer.on('maximized', () => {
@@ -176,6 +222,25 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     window.electron.ipcRenderer.on('unmaximized', () => {
       setMaximized(false);
     });
+  }, []);
+
+  useEffect(() => {
+    window.electron.ipcRenderer.sendMessage('load-category');
+
+    const categoryUnsubscriber = window.electron.ipcRenderer.on(
+      'load-category-result',
+      (result: any) => {
+        if (result.success) {
+          setCategories(result.data);
+        } else {
+          console.error('Failed to load categories:', result.error);
+        }
+      },
+    );
+
+    return () => {
+      categoryUnsubscriber();
+    };
   }, []);
 
   return (
@@ -189,11 +254,18 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       >
         <AlertProvider>
           <DocumentContext.Provider
-            value={{ document: myDocument, setDocument: setMyDocument }}
+            value={{
+              document: myDocument,
+              setDocument: setMyDocument,
+              categories,
+              addCategory,
+              removeCategory,
+              updateCategory,
+            }}
           >
             <ControlBar />
             <div className="flex flex-col h-[calc(100%_-_45px)]">
-              <main className="h-full">{children}</main>
+              <main className="h-full relative">{children}</main>
             </div>
             {/* <StatusBar /> */}
           </DocumentContext.Provider>

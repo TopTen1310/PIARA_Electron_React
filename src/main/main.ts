@@ -8,6 +8,7 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
+import fs from 'fs';
 import path from 'path';
 import {
   app,
@@ -36,6 +37,10 @@ import {
   modifyWordFile,
   writeDocxFileFromHTML,
 } from './document';
+import type { Category } from '../layout/MainLayout';
+// @ts-ignore
+import * as spacy from 'spacy-js';
+import { spawn } from 'child_process';
 
 class AppUpdater {
   constructor() {
@@ -80,6 +85,29 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
+const runServer = () => {
+  let serverPath;
+  if (app.isPackaged) {
+    serverPath = path.join(process.resourcesPath, 'server', 'server.exe');
+  } else {
+    serverPath = path.join(__dirname, '../../server/server.exe');
+  }
+
+  const server = spawn(serverPath);
+
+  server.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`);
+  });
+
+  server.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+  });
+
+  server.on('close', (code) => {
+    console.log(`child process exited with code ${code}`);
+  });
+};
+
 const createWindow = async () => {
   if (isDebug) {
     await installExtensions();
@@ -92,6 +120,9 @@ const createWindow = async () => {
   const getAssetPath = (...paths: string[]): string => {
     return path.join(RESOURCES_PATH, ...paths);
   };
+
+  // run server
+  runServer();
 
   mainWindow = new BrowserWindow({
     show: false,
@@ -180,6 +211,10 @@ const createWindow = async () => {
     globalShortcut.unregister('CmdOrCtrl+Shift+Z');
   });
 
+  mainWindow.webContents.on('will-navigate', (event) => {
+    event.preventDefault();
+  });
+
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
@@ -260,7 +295,6 @@ ipcMain.on('close-window', () => {
 });
 
 ipcMain.on('confirm-close-app', () => {
-  console.log('here');
   if (mainWindow) {
     mainWindow.removeAllListeners('close');
     mainWindow.close();
@@ -281,6 +315,41 @@ ipcMain.on('download-file', (event, filePath, updateInformation) => {
 });
 
 ipcMain.on('process-paragraphs', async (event, paragraphs: string[]) => {
+  const allowedSpacyEntities = [
+    'ORG',
+    'LOC',
+    'PERSON',
+    'DATE',
+    'TIME',
+    'GPE',
+    'FAC',
+  ];
+  const spacyKeyMap: Record<string, string> = {
+    ORG: 'ORG',
+    LOC: 'LOC',
+    PERSON: 'PER',
+    DATE: 'DATE',
+    TIME: 'TIME',
+    GPE: 'LOC',
+    FAC: 'FAC',
+  };
+  const nlp = spacy.load('en_core_web_sm');
+
+  const spacyResult: ResultEntity[][] = [];
+  for (let i = 0; i < paragraphs.length; i++) {
+    const doc = await nlp(paragraphs[i]);
+    const paragraphResult: ResultEntity[] = doc.ents
+      .map((ent: any) => ({
+        word: ent.text,
+        entity: spacyKeyMap[ent.label as string],
+      }))
+      .filter((resultEntity: ResultEntity) =>
+        allowedSpacyEntities.includes(resultEntity.entity),
+      );
+
+    spacyResult.push(paragraphResult);
+  }
+
   let pipe = await pipeline(task, model);
 
   let bertResult = await Promise.all(
@@ -289,12 +358,15 @@ ipcMain.on('process-paragraphs', async (event, paragraphs: string[]) => {
     ),
   );
 
-  if (bertResult) {
+  if (bertResult && spacyResult) {
     const result: ResultEntity[][] = bertResult.map((out: NEREntity[]) =>
       processNEREntities(out),
     );
 
-    mainWindow?.webContents.send('process-paragraphs-result', result);
+    mainWindow?.webContents.send('process-paragraphs-result', {
+      bert: result,
+      spacy: spacyResult,
+    });
   }
 });
 
@@ -318,4 +390,54 @@ ipcMain.on('open-file', async (event, filePath: string) => {
       console.error('Failed to open file:', error);
     });
   }
+});
+
+let categoryFilePath = '';
+if (app.isPackaged) {
+  categoryFilePath = path.join(
+    process.resourcesPath,
+    'settings',
+    'category.json',
+  );
+} else {
+  categoryFilePath = path.join(
+    __dirname,
+    '..',
+    '..',
+    'settings',
+    'category.json',
+  );
+}
+
+ipcMain.on('save-category', async (event, data: Category) => {
+  fs.writeFile(categoryFilePath, JSON.stringify(data), (err) => {
+    if (err) {
+      console.error('Failed to save key map:', err);
+      mainWindow?.webContents.send('save-category-result', {
+        success: false,
+        error: err.message,
+      });
+    } else {
+      mainWindow?.webContents.send('save-category-result', {
+        success: true,
+      });
+    }
+  });
+});
+
+ipcMain.on('load-category', async (event) => {
+  fs.readFile(categoryFilePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Failed to settings:', err);
+      mainWindow?.webContents.send('load-category-result', {
+        success: false,
+        error: err.message,
+      });
+    } else {
+      mainWindow?.webContents.send('load-category-result', {
+        success: true,
+        data: JSON.parse(data),
+      });
+    }
+  });
 });

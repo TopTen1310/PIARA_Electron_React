@@ -1,6 +1,7 @@
 import { Paragraph } from 'docx';
 import { ResultEntity } from '../main/ner';
 import { getRandomData } from './random';
+import { Category } from '../layout/MainLayout';
 
 export function countCharacter(s: string, char: string): number {
   return s.split(char).length - 1;
@@ -36,6 +37,11 @@ function extractTextWithSupHandling(node: HTMLElement): string {
       child.nodeType === Node.ELEMENT_NODE &&
       child.nodeName.toLowerCase() === 'span'
     ) {
+      // Skip if the span element has the 'hidden' class
+      if ((child as HTMLElement).classList.contains('hidden')) {
+        continue;
+      }
+
       for (let spanChild of child.childNodes) {
         if (spanChild.nodeType === Node.TEXT_NODE) {
           resultText += spanChild.nodeValue;
@@ -52,6 +58,8 @@ function extractTextWithSupHandling(node: HTMLElement): string {
           resultText += spanChild.textContent;
         }
       }
+    } else if (child.nodeType === Node.ELEMENT_NODE) {
+      resultText += extractTextWithSupHandling(child as HTMLElement);
     }
   }
 
@@ -270,16 +278,12 @@ export function checkTermExist(parentClass: string, term: string) {
 
     if (text) {
       let pattern;
+      let head = '\\b';
+      let tail = '\\b';
+      if (!isEnglishCharacter(term.charAt(0))) head = '';
+      if (!isEnglishCharacter(term.charAt(term.length - 1))) tail = '';
 
-      // Check if the start and end characters of item.term are English characters
-      if (
-        isEnglishCharacter(term.charAt(0)) &&
-        isEnglishCharacter(term.charAt(term.length - 1))
-      ) {
-        pattern = new RegExp(`\\b${escapeRegex(term)}\\b`, 'g');
-      } else {
-        pattern = new RegExp(escapeRegex(term), 'g');
-      }
+      pattern = new RegExp(`${head}${escapeRegex(term)}${tail}`, 'g');
 
       const matches = [...text.matchAll(pattern)];
       count += matches.length;
@@ -291,54 +295,89 @@ export function checkTermExist(parentClass: string, term: string) {
 export function getTermsFromDocument(
   parentClass: string,
   bertAnalysisResult: ResultEntity[][],
+  spacyAnalysisResult: ResultEntity[][],
   regexPatterns: Record<string, RegExp[]>,
+  categories: Category,
 ) {
   const parentElement = document.querySelector(`.${parentClass}`);
   if (!parentElement) {
     return;
   }
 
+  const mergedResult = [
+    ...bertAnalysisResult.flat(),
+    ...spacyAnalysisResult.flat(),
+  ];
+
+  const uniqueArray: string[] = [];
+  const spacyBertPatterns: Record<string, string[]> = mergedResult.reduce(
+    (result, item) => {
+      const { entity, word } = item;
+      if (uniqueArray.includes(word)) {
+        return result;
+      } else {
+        uniqueArray.push(word);
+        return {
+          ...result,
+          [entity]: [...(result[entity] ?? []), word].sort((a, b) => {
+            if (a.includes(b)) {
+              return 1;
+            } else if (b.includes(a)) {
+              return -1;
+            } else {
+              return 0;
+            }
+          }),
+        };
+      }
+    },
+    {} as Record<string, string[]>,
+  );
+
   const paragraphNodes = getParagraphNodes(parentElement);
   let results: Record<string, string[]> = {};
   let countMap: Record<string, number> = {};
 
-  let cnt = 0;
   for (let i = 0; i < paragraphNodes.length; i++) {
     const text = extractTextWithSupHandling(paragraphNodes[i]);
     let copyOfText = text;
 
     if (text) {
-      let bertResult = bertAnalysisResult[cnt];
-      cnt += 1;
-      let stSearchIndex = 0;
-      if (bertResult && bertResult.length > 0) {
-        for (let bertItem of bertResult) {
-          let regex = new RegExp(
-            `\\b${bertItem.word}${bertItem.word.endsWith('.') ? '' : '\\b'}`,
-            'g',
-          );
+      // Check User-defined terms
+      for (let key of Object.keys(categories)) {
+        for (let term of categories[key].defined) {
+          let pattern;
 
-          regex.lastIndex = stSearchIndex;
+          if (
+            isEnglishCharacter(term.charAt(0)) &&
+            isEnglishCharacter(term.charAt(term.length - 1))
+          ) {
+            pattern = new RegExp(`\\b${escapeRegex(term)}\\b`, 'g');
+          } else {
+            pattern = new RegExp(escapeRegex(term), 'g');
+          }
 
-          let match = regex.exec(copyOfText!);
-          let st = match ? match.index : -1;
-
-          let key = bertItem.entity.toLowerCase();
-
-          if (st > -1) {
+          const matches = [...copyOfText!.matchAll(pattern)];
+          for (const match of matches) {
             results = {
               ...results,
-              [key]: [...new Set([...(results[key] ?? []), bertItem.word])],
+              [key]: [...new Set([...(results[key] ?? []), match[0]])],
             };
             countMap = {
               ...countMap,
-              [bertItem.word]: (countMap[bertItem.word] ?? 0) + 1,
+              [match[0]]: (countMap[match[0]] ?? 0) + 1,
             };
-            stSearchIndex = st + bertItem.word.length;
+
+            copyOfText = replaceWithHash(
+              copyOfText!,
+              match.index!,
+              match[0].length,
+            );
           }
         }
       }
 
+      // Check Regex-defined terms
       for (let key of Object.keys(regexPatterns)) {
         for (let pattern of regexPatterns[key]) {
           const matches = [...copyOfText!.matchAll(pattern)];
@@ -352,7 +391,40 @@ export function getTermsFromDocument(
               [match[0]]: (countMap[match[0]] ?? 0) + 1,
             };
 
-            // Replace matched string with hash to avoid next match
+            copyOfText = replaceWithHash(
+              copyOfText!,
+              match.index!,
+              match[0].length,
+            );
+          }
+        }
+      }
+
+      // Check Spacy&Bert-defined terms
+      for (let key of Object.keys(spacyBertPatterns)) {
+        for (let term of spacyBertPatterns[key]) {
+          let pattern;
+
+          if (
+            isEnglishCharacter(term.charAt(0)) &&
+            isEnglishCharacter(term.charAt(term.length - 1))
+          ) {
+            pattern = new RegExp(`\\b${escapeRegex(term)}\\b`, 'g');
+          } else {
+            pattern = new RegExp(escapeRegex(term), 'g');
+          }
+
+          const matches = [...copyOfText!.matchAll(pattern)];
+          for (const match of matches) {
+            results = {
+              ...results,
+              [key]: [...new Set([...(results[key] ?? []), match[0]])],
+            };
+            countMap = {
+              ...countMap,
+              [match[0]]: (countMap[match[0]] ?? 0) + 1,
+            };
+
             copyOfText = replaceWithHash(
               copyOfText!,
               match.index!,
@@ -369,15 +441,17 @@ export function getTermsFromDocument(
     .reduce(
       (result, key) => ({
         ...result,
-        [key]: results[key].map((term) => ({
-          term,
-          count: countMap[term],
-          active: false,
-        })),
+        [key.toLowerCase()]: [
+          ...(result[key.toLowerCase()] ?? []),
+          ...results[key].map((term) => ({
+            term,
+            count: countMap[term],
+            active: false,
+          })),
+        ],
       }),
       {} as Record<string, { term: string; count: number; active: boolean }[]>,
     );
-
   return finalResult;
 }
 
@@ -391,13 +465,21 @@ export function highlightTerms(
       active: boolean;
     }[]
   >,
-  keyMap: Record<string, string>,
+  categories: Category,
   lock: boolean,
 ) {
   const parentElement = document.querySelector(`.${parentClass}`);
   if (!parentElement) {
     return;
   }
+
+  const keyMap: Record<string, string> = Object.keys(categories).reduce(
+    (result, key) => ({
+      ...result,
+      [key]: categories[key].title,
+    }),
+    {},
+  );
 
   const paragraphNodes = getParagraphNodes(parentElement);
   let keyCount: Record<string, string[]> = {};
@@ -552,9 +634,10 @@ export function highlightTerms(
           let clonedNode = currentTextNode.parentNode!.cloneNode(false);
           clonedNode.appendChild(new Text(newTerm));
           (clonedNode as HTMLElement).classList.add(`updated`);
-          (clonedNode as HTMLElement).classList.add(
-            `bg-highlight-${resultItem.key}`,
-          );
+
+          (clonedNode as HTMLElement).style.backgroundColor =
+            categories[resultItem.key]?.color;
+
           if (!lock) (clonedNode as HTMLElement).classList.add(`hidden`);
           (clonedNode as HTMLElement).setAttribute('data-tag', resultItem.text);
 
@@ -583,9 +666,8 @@ export function highlightTerms(
             ),
           );
           (originClonedNode as HTMLElement).classList.add(`original`);
-          (originClonedNode as HTMLElement).classList.add(
-            `bg-highlight-${resultItem.key}`,
-          );
+          (originClonedNode as HTMLElement).style.backgroundColor =
+            categories[resultItem.key]?.color;
           if (lock) (originClonedNode as HTMLElement).classList.add(`hidden`);
           (originClonedNode as HTMLElement).setAttribute(
             'data-tag',

@@ -117,9 +117,12 @@
     "react-router-dom": "^6.16.0",
     "react-spinners": "^0.13.8",
     "react-zoom-pan-pinch": "^3.1.0",
+    "spacy": "^0.0.4",
+    "spacy-js": "^0.0.5",
     "tailwind-safelist-generator": "^1.0.0",
     "tailwindcss": "^3.3.3",
     "tailwindcss-gradients": "^3.0.0",
+    "uuid": "^9.0.1",
     "xml2js": "^0.6.2",
     "xmldom": "^0.6.0"
   },
@@ -137,6 +140,7 @@
     "@types/react-dom": "^18.2.7",
     "@types/react-test-renderer": "^18.0.1",
     "@types/terser-webpack-plugin": "^5.0.4",
+    "@types/uuid": "^9.0.6",
     "@types/webpack-bundle-analyzer": "^4.6.0",
     "@types/xml2js": "^0.4.12",
     "@types/xmldom": "^0.1.32",
@@ -253,7 +257,16 @@
     },
     "extraResources": [
       "./assets/**",
-      "./models/**"
+      "./models/**",
+      "./settings/**",
+      "./server/**",
+      {
+        "from": "./en_core_web_sm",
+        "to": "../en_core_web_sm",
+        "filter": [
+          "**/*"
+        ]
+      }
     ],
     "publish": {
       "provider": "github",

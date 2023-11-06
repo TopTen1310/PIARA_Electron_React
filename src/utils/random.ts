@@ -8,6 +8,15 @@ export function getRandomData(key: string): string {
   return '**********';
 }
 
+export function getRandomHexColor() {
+  return (
+    '#' +
+    Math.floor(Math.random() * 16777215)
+      .toString(16)
+      .padStart(6, '0')
+  );
+}
+
 const randomDictionary: Record<string, string[]> = {
   date: [
     '30 January 2019',

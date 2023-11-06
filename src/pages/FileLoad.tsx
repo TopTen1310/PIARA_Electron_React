@@ -120,6 +120,11 @@ const FileLoad = () => {
                 onKeyDown={handleKeyDown}
                 contentEditable
               ></div>
+              {!canProcess && (
+                <p className="absolute top-0 left-2 text-[#868686]">
+                  Enter your text here
+                </p>
+              )}
             </div>
           </div>
           <div className="h-[70px] flex justify-center items-center p-3">
